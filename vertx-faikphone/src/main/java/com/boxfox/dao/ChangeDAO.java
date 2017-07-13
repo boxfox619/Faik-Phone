@@ -137,7 +137,7 @@ public class ChangeDAO extends DAO {
     public Conn getConnFromRealToken(String realToken) {
         try {
             ResultSet rs = selectResultSetFromRealToken(realToken);
-            rs.next();
+            if(rs.next())
             return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
         } catch (SQLException e) {
             e.printStackTrace();
