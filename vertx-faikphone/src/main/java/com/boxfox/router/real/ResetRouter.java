@@ -33,7 +33,8 @@ public class ResetRouter extends AbstractDAHandler<ChangeDAO> {
                     break;
                 case "code":
                     response.setStatusCode(dao.resetCode(token)?200:400);
-                    System.out.println("testas");
+                    if(response.getStatusCode()==200)
+                        response.end(dao.getAuthCode(token));
                     break;
                 case "all":
                     response.setStatusCode(dao.resetAll(token, true)?200:400);

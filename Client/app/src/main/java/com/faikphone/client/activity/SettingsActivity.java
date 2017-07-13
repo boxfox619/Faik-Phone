@@ -14,6 +14,7 @@ import android.preference.SwitchPreference;
 import android.support.annotation.RequiresApi;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -23,6 +24,9 @@ import com.faikphone.client.network.EasyAquery;
 import com.faikphone.client.utils.AppPreferences;
 import com.faikphone.client.R;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.List;
 
@@ -72,7 +76,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      * activity is showfing a two-pane settings UI.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public class GeneralPreferenceFragment extends PreferenceFragment {
+    public static class GeneralPreferenceFragment extends PreferenceFragment {
 
         private AppPreferences mAppPrefs;
 
@@ -161,7 +165,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 // TODO: 공기계 -> 본 핸드폰, 또는 그 반대 모드로 넘어갈 때 이전의 기기와의 연결을 끊기
                                 String token = FirebaseInstanceId.getInstance().getToken();
-                                EasyAquery aq = new EasyAquery(SettingsActivity.this);
+                                EasyAquery aq = new EasyAquery(getActivity());
                                 aq.setUrl(getString(R.string.real_mode_server_url) + "reset");
                                 aq.addParam("token", token);
                                 if ((Boolean) newValue) {
@@ -185,7 +189,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         })
                         .show();
 //                fakeChangeBarPreference.setChecked(!(Boolean) newValue);
-                return true;
+                return false;
             }
         };
 
@@ -230,7 +234,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 //TODO 테스트 시에만 고정 토큰 넣어줌
-                EasyAquery aq = new EasyAquery(SettingsActivity.this);
+                EasyAquery aq = new EasyAquery(getActivity());
                 aq.setUrl(getString(R.string.fake_mode_server_url) + "register");
                 aq.addParam("token", FirebaseInstanceId.getInstance().getToken());
                 aq.addParam("code", "1QEE3R8WBM6F");
@@ -262,7 +266,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 //TODO Server에 상태 체크 오청 보내기
-                EasyAquery aq = new EasyAquery(SettingsActivity.this);
+                EasyAquery aq = new EasyAquery(getActivity());
                 aq.setUrl(getString(R.string.fake_mode_server_url) + "checkconn");
                 aq.post(String.class, new AjaxCallback<String>() {
                     @Override
@@ -287,7 +291,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         private Preference.OnPreferenceClickListener realCodeVIewListener = new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                EasyAquery aq = new EasyAquery(SettingsActivity.this);
+                EasyAquery aq = new EasyAquery(getActivity());
                 aq.setUrl(getString(R.string.real_mode_server_url) + "register");
                 String code;
                 if ((code = mAppPrefs.getKeyCode()) == null) {
@@ -299,7 +303,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             String code2 = mAppPrefs.getKeyCode();
                             if (code2 == null) {
                                 Toast.makeText(getActivity(), "서버 오류 발생", Toast.LENGTH_SHORT).show();
-                            }else{
+                            } else {
                                 new AlertDialog.Builder(getActivity()).setMessage(code2)
                                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                             @Override
@@ -310,7 +314,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                             }
                         }
                     });
-                }else{
+                } else {
                     new AlertDialog.Builder(getActivity()).setMessage(code)
                             .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                                 @Override
@@ -330,21 +334,20 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     Toast.makeText(getActivity(), "등록되지 않은 기기 입니다. 인증 코드를 발급해주세요.", Toast.LENGTH_SHORT).show();
                     return true;
                 }
-                new EasyAquery(SettingsActivity.this).setUrl(getString(R.string.real_mode_server_url) +"reset").addParam("type","code").post(String.class, new AjaxCallback<String>(){
+                new EasyAquery(getActivity()).setUrl(getString(R.string.real_mode_server_url) + "reset").addParam("type", "code").post(String.class, new AjaxCallback<String>() {
 
                     @Override
                     public void callback(String url, String object, AjaxStatus status) {
-                        mAppPrefs.setKeyCode(object);
-                        String code = mAppPrefs.getKeyCode();
-                        if (code == null) {
-                            Toast.makeText(getActivity(), "서버 오류 발생", Toast.LENGTH_SHORT).show();
-                        }else
-                        new AlertDialog.Builder(getActivity()).setMessage(code)
-                                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                }).show();
+                        if (object != null) {
+                            mAppPrefs.setKeyCode(object);
+                            new AlertDialog.Builder(getActivity()).setMessage(object)
+                                    .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                        }
+                                    }).show();
+                        }
+
                     }
                 });
                 return true;
@@ -390,8 +393,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
 
         private void refreshConnection() {
-            String url = (isFake)?getString(R.string.fake_mode_server_url):getString(R.string.real_mode_server_url);
-            new EasyAquery(SettingsActivity.this).setUrl(url+"reset").addParam("type","conn").post();
+            String url = (isFake) ? getString(R.string.fake_mode_server_url) : getString(R.string.real_mode_server_url);
+            new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post();
         }
     }
 }

@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
+import com.faikphone.client.R;
+import com.faikphone.client.network.EasyAquery;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
@@ -34,23 +36,23 @@ public class SMSReceiver extends BroadcastReceiver {
 //            Date curDate = new Date(smsMessage[0].getTimestampMillis());
 //            Log.d("문자 수신 시간", curDate.toString());
 
-// SMS 발신 번호 확인
+            // SMS 발신 번호 확인
             String incomingNumber = smsMessage[0].getOriginatingAddress();
 
-// SMS 메시지 확인
+            // SMS 메시지 확인
             String message = smsMessage[0].getMessageBody().toString();
             Log.d("문자 내용", "발신자 : " + incomingNumber + ", 내용 : " + message);
 
-
-            RealHttpClient httpClient= new RealHttpClient(context);
             try {
                 JSONObject messageJSON = new JSONObject();
                 messageJSON.put("event", "sms");
                 messageJSON.put("name", "");
                 messageJSON.put("number", incomingNumber);
                 messageJSON.put("content", message);
-                String token = FirebaseInstanceId.getInstance().getToken();
-                httpClient.doSendMessage(messageJSON, token);
+                new EasyAquery(context)
+                        .setUrl(context.getString(R.string.real_mode_server_url)+"send")
+                        .addParam("message", messageJSON)
+                        .post();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
