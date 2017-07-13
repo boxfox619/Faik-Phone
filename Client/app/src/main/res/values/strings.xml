@@ -35,4 +35,7 @@
     <string name="check_connection_status">연결 상태 체크</string>
     
     <string name="preferences_changed_broadcast">com.faikphone.client.PREFERENCES_CHANGED_BROADCAST</string>
+
+    <string name="fake_mode_server_url">http://boxfoxsw.com:10305/fake.do/</string>
+    <string name="real_mode_server_url">http://boxfoxsw.com:10305/real.do/</string>
 </resources>

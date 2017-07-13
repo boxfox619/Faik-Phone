@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
 
-import com.faikphone.client.network.RealHttpClient;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;

@@ -19,13 +19,13 @@ public class MainVerticle extends AbstractVerticle {
 	public void start() throws Exception {
 		Router router = Router.router(vertx);
 		int serverPort = Config.getIntValue("serverPort");
-		
 		router.route().handler(BodyHandler.create().setUploadsDirectory("files"));
+		
 		router.route().handler(CookieHandler.create());
 		router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 		router.route().handler(CORSHandler.create());
 		router.route().handler(LogHandler.create());
-		Routing.route(router, "com.boxfox.routers");
+		Routing.route(router, "com.boxfox.router");
 		
 		router.route().handler(StaticHandler.create());
 		

@@ -17,7 +17,6 @@ public class ResponseHandler {
     }
 
     public void handlerResponse(Response response, boolean state) {
-        if (response == null) return;
         if (!state) {
             switch (response.getType()) {
                 case "send_message_response":
@@ -75,10 +74,6 @@ public class ResponseHandler {
                     } else {
                         logger.write("메시지 전송 실패");
                     }
-                    break;
-                case "reset_all_response":
-                    break;
-                case "reset_conn_response":
                     break;
             }
         }

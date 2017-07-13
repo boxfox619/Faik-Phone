@@ -23,8 +23,8 @@ public abstract class AbstractDAHandler<T extends DAO> implements Handler<Routin
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append("jdbc:mysql://localhost:");
         urlBuilder.append(Config.getValue("dbPort")).append("/");
-        urlBuilder.append(Config.getValue("dbTableName")).append("?");
-        urlBuilder.append("?allowMultiQueries=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false");
+        urlBuilder.append(Config.getValue("dbName")).append("?");
+        urlBuilder.append("allowMultiQueries=true&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false");
 
         url = urlBuilder.toString();
         try {

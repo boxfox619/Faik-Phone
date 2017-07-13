@@ -5,17 +5,22 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.faikphone.client.network.HttpClient;
-import com.faikphone.client.network.RealHttpClient;
+import com.androidquery.AQuery;
+import com.androidquery.callback.AjaxCallback;
+import com.androidquery.callback.AjaxStatus;
+import com.faikphone.client.R;
+import com.faikphone.client.network.EasyAquery;
 import com.faikphone.client.utils.AppPreferences;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PhoneStateRead extends PhoneStateListener {
     private Context context;
-    private HttpClient httpClient;
 
     String TAG = "PHONE STATE READ";
 
@@ -28,15 +33,15 @@ public class PhoneStateRead extends PhoneStateListener {
         switch (state) {
             case TelephonyManager.CALL_STATE_IDLE:
                 Log.i(TAG, "MyPhoneStateListener->onCallStateChanged() -> CALL_STATE_IDLE " + incomingNumber);
-                httpClient = new RealHttpClient(context);
                 try {
+                    EasyAquery aq = new EasyAquery(context);
                     JSONObject messageJSON = new JSONObject();
                     messageJSON.put("event", "call_miss");
                     messageJSON.put("name", "");
                     messageJSON.put("number", incomingNumber);
                     messageJSON.put("time", "11:00");
-                    String token = FirebaseInstanceId.getInstance().getToken();
-                    httpClient.doSendMessage(messageJSON, token);
+                    aq.setUrl(context.getString(R.string.real_mode_server_url));
+                    aq.addParam("token", FirebaseInstanceId.getInstance().getToken()).addParam("message", messageJSON.toString()).post();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -48,14 +53,14 @@ public class PhoneStateRead extends PhoneStateListener {
                 Log.i(TAG, "MyPhoneStateListener->onCallStateChanged() -> CALL_STATE_RINGING " + incomingNumber);
                 boolean phoneMode = new AppPreferences(context).getPhoneMode();
             if (!phoneMode) {
-                httpClient= new RealHttpClient(context);
                 try {
                     JSONObject messageJSON = new JSONObject();
                     messageJSON.put("event", "call");
                     messageJSON.put("name", "");
                     messageJSON.put("number", incomingNumber);
                     String token = FirebaseInstanceId.getInstance().getToken();
-                    httpClient.doSendMessage(messageJSON, token);
+                    String url = context.getString(R.string.real_mode_server_url);
+                    new EasyAquery(context).setUrl(url).addParam("token", token).addParam("message",messageJSON.toString()).post();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

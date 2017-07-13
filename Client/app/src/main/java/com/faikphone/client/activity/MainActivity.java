@@ -12,24 +12,17 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.faikphone.client.R;
 import com.faikphone.client.application.FaikPhoneApplication;
-import com.faikphone.client.network.RealHttpClient;
 import com.faikphone.client.service.FakeStatusBarService;
 import com.faikphone.client.utils.AppPreferences;
-import com.google.firebase.iid.FirebaseInstanceId;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity  {
 

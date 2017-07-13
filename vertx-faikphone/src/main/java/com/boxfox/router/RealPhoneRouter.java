@@ -18,7 +18,7 @@ import java.io.PrintWriter;
 /**
  * Created by boxfox on 2017-07-13.
  */
-@Route(uri="/real.do", method = HttpMethod.POST)
+@Route(uri="/real.do", method = HttpMethod.GET)
 public class RealPhoneRouter extends AbstractDAHandler<ChangeDAO> {
     public RealPhoneRouter() {
         super(ChangeDAO.class);
