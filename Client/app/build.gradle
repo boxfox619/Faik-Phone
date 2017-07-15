@@ -45,6 +45,7 @@ dependencies {
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
     compile 'com.roughike:swipe-selector:1.0.6'
+    compile 'com.mikepenz.thirdparty:material-design-library:1.5.0-SNAPSHOT'
 }
 
 apply plugin: 'com.google.gms.google-services'

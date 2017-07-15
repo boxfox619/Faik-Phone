@@ -45,15 +45,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/title_activity_settings">
-            <intent-filter>
-                <action android:name="com.faikphone.client.SettingsActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".activity.CallActivity"  android:noHistory="true"/>
         <service
             android:name=".service.FireBaseMessagingReceiver">

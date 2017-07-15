@@ -21,6 +21,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.faikphone.client.R;
 import com.faikphone.client.network.EasyAquery;
 import com.faikphone.client.utils.AppPreferences;
+import com.gc.materialdesign.views.ButtonFlat;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.swipeselector.OnSwipeItemSelectedListener;
 import com.roughike.swipeselector.SwipeItem;
@@ -35,6 +36,7 @@ public class FakeModeFragment extends Fragment {
 
     private EditText realCodeEditText;
     private ImageButton connectBtn;
+    private ButtonFlat disconnectBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,6 +47,9 @@ public class FakeModeFragment extends Fragment {
         realCodeEditText = (EditText) root.findViewById(R.id.et_real_code);
         connectBtn.setOnClickListener(view -> codeInputOk());
         realCodeEditText.setText(mAppPrefs.getConnectedKeyCode());
+        disconnectBtn = (ButtonFlat) root.findViewById(R.id.btn_disconnect);
+        disconnectBtn.setOnClickListener(view -> disconnect());
+        disconnectBtn.setEnabled(false);
         root.findViewById(R.id.btn_disconnect).setOnClickListener(view -> disconnect());
         SwipeSelector swipeSelector = (SwipeSelector) root.findViewById(R.id.selector_mobile_carrier);
         swipeSelector.setItems(
@@ -114,7 +119,7 @@ public class FakeModeFragment extends Fragment {
                 .show();
     }
 
-    private void checkConnection(){
+    private void checkConnection() {
         EasyAquery aq = new EasyAquery(getActivity());
         aq.setUrl(getString(R.string.fake_mode_server_url) + "checkconn");
         aq.post(String.class, new AjaxCallback<String>() {

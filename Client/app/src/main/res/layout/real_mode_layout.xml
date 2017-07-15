@@ -21,8 +21,7 @@
     <com.faikphone.client.view.SettingCategory
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:title="Real 모드 설명">
-
+        app:title="인증 코드">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -43,14 +42,17 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_check"
+                android:src="@drawable/ic_refresh"
                 android:tint="@color/colorAccent" />
         </RelativeLayout>
 
-        <Button
-            android:layout_width="match_parent"
+        <com.gc.materialdesign.views.ButtonFlat
+            android:id="@+id/btn_disconnect"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="연결 끊기"/>
+            android:background="@color/colorPrimary"
+            android:text="연결 끊기"
+            android:gravity="center"/>
     </com.faikphone.client.view.SettingCategory>
 
 </LinearLayout>

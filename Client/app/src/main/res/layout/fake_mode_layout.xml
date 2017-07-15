@@ -60,11 +60,13 @@
                 android:tint="@color/colorAccent" />
         </RelativeLayout>
 
-        <Button
+        <com.gc.materialdesign.views.ButtonFlat
             android:id="@+id/btn_disconnect"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="연결 끊기" />
+            android:background="@color/colorPrimary"
+            android:text="연결 끊기"
+            android:gravity="center"/>
     </com.faikphone.client.view.SettingCategory>
 
 </LinearLayout>
