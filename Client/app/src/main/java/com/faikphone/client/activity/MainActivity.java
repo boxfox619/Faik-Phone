@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
                     .beginTransaction()
                     .add(R.id.container, appPreferences.getPhoneMode() ? new RealModeFragment() : new FakeModeFragment())
                     .commit();
+            modeTitleTextView.setText(appPreferences.getPhoneMode()?"REAL":"FAKE");
         }
 
         if (checkDrawOverlayPermission()) {

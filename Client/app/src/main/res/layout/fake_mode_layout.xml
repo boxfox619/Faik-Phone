@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
+
+    <com.faikphone.client.view.SettingCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="Fake 모드 설명">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fake모드는 약정이 해지되어 통신이 불가능한 상태의 단말기에 적용하는 모드 입니다.
+             진짜 스마트폰 대신 Fake 모드를 사용하여 통신이 불가능한 상태의 ㅁㅁ를 꾸미고 진짜 스마트폰과 연동하여 전화 또는 문자를 수신할 수 있습니다."/>
+
+    </com.faikphone.client.view.SettingCategory>
 
     <com.faikphone.client.view.SettingCategory
         android:layout_width="match_parent"
@@ -29,11 +43,11 @@
                 android:id="@+id/et_real_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_margin="3dp"
-                android:hint="@string/hint_fake_connect_code"
+                android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/btn_connect_real"
-                android:background="@android:color/transparent" />
+                android:background="@android:color/transparent"
+                android:hint="@string/hint_fake_connect_code" />
 
             <ImageButton
                 android:id="@+id/btn_connect_real"
@@ -45,6 +59,12 @@
                 android:src="@drawable/ic_check"
                 android:tint="@color/colorAccent" />
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_disconnect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="연결 끊기" />
     </com.faikphone.client.view.SettingCategory>
 
 </LinearLayout>

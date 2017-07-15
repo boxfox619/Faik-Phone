@@ -18,7 +18,8 @@ public class AppPreferences {
     public static final String KEY_REAL_PHONE_NUM = "realPhoneNum";
     public static final String KEY_FAKE_STATUS_BAR_MODE = "fakeStatusBarMode";
     public static final String KEY_DEVICE_PHONE_NUMBER = "deviceNum";
-    public static final String KEY_DEVICE_MOBILE_CARRIER = "deviceNum";
+    public static final String KEY_DEVICE_MOBILE_CARRIER = "deviceCarrier";
+    public static final String KEY_CONNECTED_KEY_CODE= "connectedKeyCode";
 
     public AppPreferences(Context context) {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -33,6 +34,15 @@ public class AppPreferences {
     public void setPhoneMode(boolean state) {
         editor.putBoolean(KEY_PHONE_MODE, state);
         editor.commit();
+    }
+
+    public void setConnectedKeyCode(String code){
+        editor.putString(KEY_CONNECTED_KEY_CODE, code);
+        editor.commit();
+    }
+
+    public String getConnectedKeyCode(){
+        return sharedPreferences.getString(KEY_CONNECTED_KEY_CODE, null);
     }
 
     public void setMobileCarrier(String carrier) {

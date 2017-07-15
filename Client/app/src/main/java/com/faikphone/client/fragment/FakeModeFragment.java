@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -42,6 +43,9 @@ public class FakeModeFragment extends Fragment {
         mAppPrefs = new AppPreferences(getActivity());
         connectBtn = (ImageButton) root.findViewById(R.id.btn_connect_real);
         realCodeEditText = (EditText) root.findViewById(R.id.et_real_code);
+        connectBtn.setOnClickListener(view -> codeInputOk());
+        realCodeEditText.setText(mAppPrefs.getConnectedKeyCode());
+        root.findViewById(R.id.btn_disconnect).setOnClickListener(view -> disconnect());
         SwipeSelector swipeSelector = (SwipeSelector) root.findViewById(R.id.selector_mobile_carrier);
         swipeSelector.setItems(
                 new SwipeItem(0, "사용안함", "가상 상단바를 사용하지 않습니다."),
@@ -52,7 +56,6 @@ public class FakeModeFragment extends Fragment {
         swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
             @Override
             public void onItemSelected(SwipeItem item) {
-                Log.d("Test", item.value + "");
                 mAppPrefs.setFakeStatusBarMode(((int) item.value) == 0 ? false : true);
                 mAppPrefs.setMobileCarrier(item.title);
                 getActivity().sendBroadcast(new Intent(getString(R.string.preferences_changed_broadcast)));
@@ -72,6 +75,7 @@ public class FakeModeFragment extends Fragment {
             public void callback(String url, String object, AjaxStatus status) {
                 if (status.getCode() == 200) {
                     mAppPrefs.setRealPhoneNum(object);
+                    mAppPrefs.setConnectedKeyCode(realCodeEditText.getText().toString());
                     Toast.makeText(getActivity(), "연결에 성공했습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
@@ -80,7 +84,7 @@ public class FakeModeFragment extends Fragment {
         });
     }
 
-    private void ok() {
+    private void codeInputOk() {
         //TODO 테스트 시에만 고정 토큰 넣어줌
         if (mAppPrefs.getKeyRealPhoneNum() != null) {
             new AlertDialog.Builder(getActivity()).setMessage("이미 연결 되어 있습니다. 다른 기기에 연결하시겠습니까? ")
@@ -95,5 +99,45 @@ public class FakeModeFragment extends Fragment {
         } else {
             connect();
         }
+    }
+
+    private void disconnect() {
+        String message = getResources().getString(R.string.refresh_alert_fake);
+        new AlertDialog.Builder(getActivity()).setMessage(message)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        refreshConnection();
+                    }
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void checkConnection(){
+        EasyAquery aq = new EasyAquery(getActivity());
+        aq.setUrl(getString(R.string.fake_mode_server_url) + "checkconn");
+        aq.post(String.class, new AjaxCallback<String>() {
+            @Override
+            public void callback(String url, String object, AjaxStatus status) {
+                String phoneNum;
+                if ((phoneNum = mAppPrefs.getKeyRealPhoneNum()) == null) {
+                    Toast.makeText(getActivity(), "연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
+                } else
+                    new AlertDialog.Builder(getActivity()).setMessage("연결된 기기 : " + phoneNum)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            })
+                            .show();
+            }
+        });
+    }
+
+
+    private void refreshConnection() {
+        String url = (mAppPrefs.getPhoneMode()) ? getString(R.string.fake_mode_server_url) : getString(R.string.real_mode_server_url);
+        new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post();
     }
 }
