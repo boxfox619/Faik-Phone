@@ -38,4 +38,6 @@
 
     <string name="fake_mode_server_url">http://boxfoxsw.com:10305/fake.do/</string>
     <string name="real_mode_server_url">http://boxfoxsw.com:10305/real.do/</string>
+
+    <string name="hint_fake_connect_code">연결할 스마트폰의 코드</string>
 </resources>

@@ -119,7 +119,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // Fake Preferences
             fakeConnectionPreference = (EditTextPreference) findPreference("fake_connection");
             fakeConnectionPreference.setOnPreferenceChangeListener(fakeConnectionChangeListener);
-            fakeConnectionPreference.setOnPreferenceClickListener(fakeConnectionClickListener);
 
             fakeDisconnectPreference = findPreference("fake_disconnect");
             fakeDisconnectPreference.setOnPreferenceClickListener(fakeRefreshClickListener);
@@ -178,26 +177,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         .setNegativeButton("취소", null)
                         .show();
                 return true;
-            }
-        };
-        private EditTextPreference.OnPreferenceClickListener fakeConnectionClickListener = new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                fakeConnectionPreference.setDialogTitle(R.string.pref_connection_dialog_fake);
-                if (mAppPrefs.getKeyRealPhoneNum() != null) {
-                    new AlertDialog.Builder(getActivity()).setMessage("이미 연결 되어 있습니다. 다른 기기에 연결하시겠습니까? ")
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    //TODO 연결 끊어야 함
-                                    fakeConnectionPreference.getDialog().show();
-                                }
-                            })
-                            .setNegativeButton("취소", null)
-                            .show();
-                }
-                fakeConnectionPreference.getDialog().hide();
-                return false;
             }
         };
 

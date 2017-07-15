@@ -18,46 +18,56 @@ public class AppPreferences {
     public static final String KEY_REAL_PHONE_NUM = "realPhoneNum";
     public static final String KEY_FAKE_STATUS_BAR_MODE = "fakeStatusBarMode";
     public static final String KEY_DEVICE_PHONE_NUMBER = "deviceNum";
+    public static final String KEY_DEVICE_MOBILE_CARRIER = "deviceNum";
 
-    public AppPreferences(Context context){
+    public AppPreferences(Context context) {
         this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         this.editor = sharedPreferences.edit();
         this.context = context;
     }
 
-    public boolean getPhoneMode(){
+    public boolean getPhoneMode() {
         return sharedPreferences.getBoolean(KEY_PHONE_MODE, false);
     }
 
-    public void setPhoneMode(boolean state){
+    public void setPhoneMode(boolean state) {
         editor.putBoolean(KEY_PHONE_MODE, state);
         editor.commit();
     }
 
+    public void setMobileCarrier(String carrier) {
+        editor.putString(KEY_DEVICE_MOBILE_CARRIER, carrier);
+        editor.commit();
+    }
 
-    public String getKeyCode(){
+
+    public String getKeyCode() {
         return sharedPreferences.getString(KEY_AUTH_CODE, null);
     }
 
-    public String getKeyRealPhoneNum(){
+    public String getMobileCarrier() {
+        return sharedPreferences.getString(KEY_DEVICE_MOBILE_CARRIER, null);
+    }
+
+    public String getKeyRealPhoneNum() {
         return sharedPreferences.getString(KEY_REAL_PHONE_NUM, null);
     }
 
-    public String getKeyDevicePhoneNumber(){
+    public String getKeyDevicePhoneNumber() {
         return sharedPreferences.getString(KEY_DEVICE_PHONE_NUMBER, null);
     }
 
-    public void setKeyCode(String code){
+    public void setKeyCode(String code) {
         editor.putString(KEY_AUTH_CODE, code);
         editor.commit();
     }
 
-    public void setRealPhoneNum(String phoneNum){
+    public void setRealPhoneNum(String phoneNum) {
         editor.putString(KEY_REAL_PHONE_NUM, phoneNum);
         editor.commit();
     }
 
-    public void setKeyDevicePhoneNumber(String phoneNumber){
+    public void setKeyDevicePhoneNumber(String phoneNumber) {
         editor.putString(KEY_DEVICE_PHONE_NUMBER, phoneNumber);
         editor.commit();
     }

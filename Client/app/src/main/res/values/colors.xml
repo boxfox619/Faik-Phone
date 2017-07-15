@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimaryDark">#6D70FD</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="fakeColorPrimaryDark">#6D70FD</color>
+    <color name="fakeColorPrimary">#6D70FD</color>
+    <color name="fakeColorAccent">#6D70FD</color>
+
+    <color name="realColorPrimaryDark">#307FFF</color>
+    <color name="realColorPrimary">#4DAAF8</color>
+    <color name="realColorAccent">#4DAAF8</color>
 
     <color name="colorFakeStatusBarBackground">#000000</color>
     <color name="colorCallInform">#6DBD4C</color>

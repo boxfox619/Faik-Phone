@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceActivity;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +22,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.faikphone.client.R;
@@ -31,8 +34,6 @@ import com.faikphone.client.service.FakeStatusBarService;
 import com.faikphone.client.utils.AppPreferences;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import at.markushi.ui.CircleButton;
-
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_MANAGE_OVERLAY_PERMISSION = 11;
@@ -41,13 +42,17 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 23;
 
     private AppPreferences appPreferences;
-    private CircleButton changeModeBtn;
+    private FloatingActionButton modeChangeFabBtn;
+    private TextView modeTitleTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         appPreferences = FaikPhoneApplication.getAppPreferences();
+        modeChangeFabBtn = (FloatingActionButton) findViewById(R.id.fab_mode_change);
+        modeChangeFabBtn.setOnClickListener(view -> changeMode());
+        modeTitleTextView = (TextView) findViewById(R.id.tv_mode_title);
 
         if (savedInstanceState == null) {
             getFragmentManager()
@@ -55,9 +60,6 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.container, appPreferences.getPhoneMode() ? new RealModeFragment() : new FakeModeFragment())
                     .commit();
         }
-
-        /*startBtn = (Button) findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(event -> onStartBtnClicked(event));*/
 
         if (checkDrawOverlayPermission()) {
             startService(new Intent(this, FakeStatusBarService.class));
@@ -67,23 +69,36 @@ public class MainActivity extends AppCompatActivity {
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
     }
 
+    private Boolean exit = false;
+
+    @Override
+    public void onBackPressed() {
+        if (exit) {
+            finish();
+        } else {
+            Toast.makeText(this, "뒤로가기버튼을 한번 더 누르면 앱이 종료됩니다.",
+                    Toast.LENGTH_SHORT).show();
+            exit = true;
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    exit = false;
+                }
+            }, 3 * 1000);
+
+        }
+
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (appPreferences.getPhoneMode()) {  // fakePhone
-            getSupportActionBar().setTitle("FaikPhone(Fake Mode)");
-        } else {  // realPhone
-            getSupportActionBar().setTitle("FaikPhone(Real Mode)");
+        if (!appPreferences.getPhoneMode()) {
             if (appPreferences.getKeyDevicePhoneNumber() == null) {
                 TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
                 appPreferences.setKeyDevicePhoneNumber(telephonyManager.getLine1Number());
             }
         }
-    }
-
-    private void onChangeModeBtnClicked(View view) {
-
     }
 
     private void onStartBtnClicked(View event) {
@@ -151,19 +166,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    public void onClickSettings(MenuItem menuItem) {
-        flipCard();
-    }
-
-
-    private void flipCard() {
+    private void changeMode() {
         new AlertDialog.Builder(MainActivity.this).setMessage("Mode를 변경하시면 연결된 데이터는 모두 초기화 됩니다. 변경하시겠습니까?")
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     @Override
@@ -186,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
                                 .replace(R.id.container, appPreferences.getPhoneMode() ? new RealModeFragment() : new FakeModeFragment())
                                 .addToBackStack(null)
                                 .commit();
+                        modeTitleTextView.setText(appPreferences.getPhoneMode() ? "REAL" : "FAKE");
                     }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener() {

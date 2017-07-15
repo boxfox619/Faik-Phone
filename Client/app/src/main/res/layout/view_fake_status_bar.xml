@@ -13,6 +13,7 @@
         android:layout_marginLeft="6dp"
         android:layout_marginStart="6dp"
         android:layout_centerVertical="true"
+        android:id="@+id/tv_mobile_carrier"
         android:text="@string/mobile_carrier"
         android:textColor="@android:color/white" />
 

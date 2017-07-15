@@ -1,11 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
 
-    <TextView
+    <com.faikphone.client.view.SettingCategory
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="fake"/>
+        android:layout_height="wrap_content"
+        app:title="상단바 설정">
+
+        <com.roughike.swipeselector.SwipeSelector
+            android:id="@+id/selector_mobile_carrier"
+            android:layout_width="match_parent"
+            android:layout_height="80dp" />
+    </com.faikphone.client.view.SettingCategory>
+
+    <com.faikphone.client.view.SettingCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="연결 관리">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/et_real_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_margin="3dp"
+                android:hint="@string/hint_fake_connect_code"
+                android:layout_toStartOf="@+id/btn_connect_real"
+                android:background="@android:color/transparent" />
+
+            <ImageButton
+                android:id="@+id/btn_connect_real"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_check"
+                android:tint="@color/colorAccent" />
+        </RelativeLayout>
+    </com.faikphone.client.view.SettingCategory>
 
 </LinearLayout>

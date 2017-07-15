@@ -37,14 +37,12 @@ public class FakeStatusBarService extends Service {
     private AppPreferences mAppPrefs;
     private WindowManager mWindowManager;
     private View mFakeStatusBar;
-    private TextView mTimeTV;
+    private TextView mTimeTV, mMobileCarrierTV;
 
     @Override
     public void onCreate() {
         super.onCreate();
-
         mAppPrefs = new AppPreferences(this);
-
         if (mAppPrefs.isFakeStatusBarMode()) {
             showFakeStatusBar();
         } else {
@@ -57,7 +55,8 @@ public class FakeStatusBarService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mFakeStatusBar != null && mFakeStatusBar.isShown()) mWindowManager.removeViewImmediate(mFakeStatusBar);
+        if (mFakeStatusBar != null && mFakeStatusBar.isShown())
+            mWindowManager.removeViewImmediate(mFakeStatusBar);
         if (mTimeChangedReceiver != null) {
             try {
                 unregisterReceiver(mTimeChangedReceiver);
@@ -80,6 +79,8 @@ public class FakeStatusBarService extends Service {
         mFakeStatusBar = layoutInflater.inflate(R.layout.view_fake_status_bar, null);
 
         mTimeTV = (TextView) mFakeStatusBar.findViewById(R.id.tv_time);
+        mMobileCarrierTV = (TextView) mFakeStatusBar.findViewById(R.id.tv_mobile_carrier);
+        mMobileCarrierTV.setText(mAppPrefs.getMobileCarrier());
         setCurrentTime();
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
@@ -119,7 +120,8 @@ public class FakeStatusBarService extends Service {
     }
 
     private void hideFakeStatusBar() {
-        if (mFakeStatusBar != null && mFakeStatusBar.isShown()) mWindowManager.removeViewImmediate(mFakeStatusBar);
+        if (mFakeStatusBar != null && mFakeStatusBar.isShown())
+            mWindowManager.removeViewImmediate(mFakeStatusBar);
     }
 
     private void setCurrentTime() {
@@ -143,7 +145,10 @@ public class FakeStatusBarService extends Service {
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(getString(R.string.preferences_changed_broadcast))) {
                 if (mAppPrefs.getPhoneMode() && mAppPrefs.isFakeStatusBarMode()) {
-                    showFakeStatusBar();
+                    if (mFakeStatusBar != null && mFakeStatusBar.isShown())
+                        showFakeStatusBar();
+                    else
+                        mMobileCarrierTV.setText(mAppPrefs.getMobileCarrier());
                 } else {
                     hideFakeStatusBar();
                 }
