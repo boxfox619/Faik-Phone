@@ -1,6 +1,7 @@
 package com.faikphone.client.activity;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -10,8 +11,10 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -21,10 +24,16 @@ import android.widget.Toast;
 
 import com.faikphone.client.R;
 import com.faikphone.client.application.FaikPhoneApplication;
+import com.faikphone.client.fragment.FakeModeFragment;
+import com.faikphone.client.fragment.RealModeFragment;
+import com.faikphone.client.network.EasyAquery;
 import com.faikphone.client.service.FakeStatusBarService;
 import com.faikphone.client.utils.AppPreferences;
+import com.google.firebase.iid.FirebaseInstanceId;
 
-public class MainActivity extends AppCompatActivity  {
+import at.markushi.ui.CircleButton;
+
+public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_MANAGE_OVERLAY_PERMISSION = 11;
     private static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 21;
@@ -32,45 +41,49 @@ public class MainActivity extends AppCompatActivity  {
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 23;
 
     private AppPreferences appPreferences;
-    private Button startBtn;
+    private CircleButton changeModeBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        appPreferences = FaikPhoneApplication.getAppPreferences();
 
-        startBtn = (Button) findViewById(R.id.startBtn);
-        startBtn.setOnClickListener(event -> onStartBtnClicked(event));
+        if (savedInstanceState == null) {
+            getFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.container, appPreferences.getPhoneMode() ? new RealModeFragment() : new FakeModeFragment())
+                    .commit();
+        }
+
+        /*startBtn = (Button) findViewById(R.id.startBtn);
+        startBtn.setOnClickListener(event -> onStartBtnClicked(event));*/
 
         if (checkDrawOverlayPermission()) {
             startService(new Intent(this, FakeStatusBarService.class));
         }
-
         checkPermission(Manifest.permission.READ_PHONE_STATE, PERMISSIONS_REQUEST_READ_PHONE_STATE);
         checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
-
-        this.appPreferences = FaikPhoneApplication.getAppPreferences();
-
-        if(appPreferences.getPhoneMode()){
-            startBtn.setVisibility(View.VISIBLE);
-        }else{
-            startBtn.setVisibility(View.INVISIBLE);
-        }
 
         if (appPreferences.getPhoneMode()) {  // fakePhone
             getSupportActionBar().setTitle("FaikPhone(Fake Mode)");
         } else {  // realPhone
             getSupportActionBar().setTitle("FaikPhone(Real Mode)");
-            if(appPreferences.getKeyDevicePhoneNumber() == null) {
+            if (appPreferences.getKeyDevicePhoneNumber() == null) {
                 TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
                 appPreferences.setKeyDevicePhoneNumber(telephonyManager.getLine1Number());
             }
         }
+    }
+
+    private void onChangeModeBtnClicked(View view) {
+
     }
 
     private void onStartBtnClicked(View event) {
@@ -146,13 +159,40 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     public void onClickSettings(MenuItem menuItem) {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        intent.putExtra(PreferenceActivity.EXTRA_SHOW_FRAGMENT, SettingsActivity.GeneralPreferenceFragment.class.getName());
-        intent.putExtra(PreferenceActivity.EXTRA_NO_HEADERS, true);
-        try {
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        flipCard();
+    }
+
+
+    private void flipCard() {
+        new AlertDialog.Builder(MainActivity.this).setMessage("Mode를 변경하시면 연결된 데이터는 모두 초기화 됩니다. 변경하시겠습니까?")
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO: 공기계 -> 본 핸드폰, 또는 그 반대 모드로 넘어갈 때 이전의 기기와의 연결을 끊기
+                        appPreferences.setPhoneMode(!appPreferences.getPhoneMode());
+                        String token = FirebaseInstanceId.getInstance().getToken();
+                        EasyAquery aq = new EasyAquery(MainActivity.this);
+                        aq.setUrl(getString(R.string.real_mode_server_url) + "reset")
+                                .addParam("token", token)
+                                .addParam("type", appPreferences.getPhoneMode() ? "all" : "conn")
+                                .post();
+                        getFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(
+                                        R.animator.card_flip_right_in,
+                                        R.animator.card_flip_right_out,
+                                        R.animator.card_flip_left_in,
+                                        R.animator.card_flip_left_out)
+                                .replace(R.id.container, appPreferences.getPhoneMode() ? new RealModeFragment() : new FakeModeFragment())
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                })
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
     }
 }

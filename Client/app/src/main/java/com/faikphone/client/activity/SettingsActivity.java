@@ -159,35 +159,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         private Preference.OnPreferenceChangeListener fakeSwitchChangeListener = new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, final Object newValue) {
-                new AlertDialog.Builder(getActivity()).setMessage("Mode를 변경하시면 연결된 데이터는 모두 초기화 됩니다. 변경하시겠습니까?")
-                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // TODO: 공기계 -> 본 핸드폰, 또는 그 반대 모드로 넘어갈 때 이전의 기기와의 연결을 끊기
-                                String token = FirebaseInstanceId.getInstance().getToken();
-                                EasyAquery aq = new EasyAquery(getActivity());
-                                aq.setUrl(getString(R.string.real_mode_server_url) + "reset");
-                                aq.addParam("token", token);
-                                if ((Boolean) newValue) {
-                                    aq.addParam("type", "all");
-                                } else {
-                                    aq.addParam("type", "conn");
-                                }
-                                aq.post();
-                                isFake = (boolean) newValue;
-                                mAppPrefs.setPhoneMode(isFake);
-                                ChangePreferences();
-                                getActivity().sendBroadcast(new Intent(getString(R.string.preferences_changed_broadcast)));
-                                switchModeReference.setChecked((Boolean) newValue);
-                            }
-                        })
-                        .setNegativeButton("취소", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switchModeReference.setChecked(!(Boolean) newValue);
-                            }
-                        })
-                        .show();
 //                fakeChangeBarPreference.setChecked(!(Boolean) newValue);
                 return false;
             }
