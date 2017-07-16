@@ -14,7 +14,7 @@ import org.json.JSONObject;
 /**
  * Created by boxfox on 2017-07-13.
  */
-@Route(uri="/real.do/register", method = HttpMethod.POST)
+@Route(uri = "/real.do/register", method = HttpMethod.POST)
 public class RegisterRouter extends AbstractDAHandler<ChangeDAO> {
     public RegisterRouter() {
         super(ChangeDAO.class);
@@ -22,12 +22,12 @@ public class RegisterRouter extends AbstractDAHandler<ChangeDAO> {
 
     @Override
     public void handle(RoutingContext ctx, ChangeDAO dao) {
-        HttpServerRequest request  = ctx.request();
+        HttpServerRequest request = ctx.request();
         HttpServerResponse response = ctx.response();
-        if(dao.insertRealPhoneToken(request.getParam("token"), request.getParam("pnum"))){
+        if (dao.insertRealPhoneToken(request.getParam("token"), request.getParam("pnum"))) {
             response.setStatusCode(200);
             response.end(dao.getAuthCode(request.getParam("token")));
-        }else{
+        } else {
             response.setStatusCode(400);
         }
         response.close();

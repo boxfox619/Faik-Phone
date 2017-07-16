@@ -40,18 +40,16 @@ public class ChangeDAO extends DAO {
      * @return
      */
     public boolean insertFaikPhoneToken(String token, String code) {
-        if (isAnotherFakePhoneRegisterd(code)) {            //이미 다른 FakePhone이 등록 되어 있는지 검사
-            return false;
-        }
-
-        String sql = "update conn set faketoken = '" + token + "' where code = '" + code + "'";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
+        if (!isAnotherFakePhoneRegisterd(code))
+            try {
+                String sql = "update conn set faketoken = '" + token + "' where code = '" + code + "'";
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                if (preparedStatement.executeUpdate() > 0) {
+                    return true;
+                }
+            } catch (SQLException e) {
+            }
+        return false;
     }
 
     /**
@@ -61,17 +59,18 @@ public class ChangeDAO extends DAO {
      * @param state : true = realPhone, false = fakePhone
      * @return
      */
+
     public boolean resetConnection(String token, boolean state) {
         String sql = "update conn set faketoken = '' where";
         sql += state ? " realtoken = '" + token + "'" : "faketoken = '" + token + "'";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.execute();
+            if(preparedStatement.executeUpdate()>0)
+                return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -106,11 +105,12 @@ public class ChangeDAO extends DAO {
         String sql = "update conn set code = '" + code + "' where realtoken = '" + token + "'";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            preparedStatement.execute();
+            if(preparedStatement.executeUpdate()>0){
+                return true;
+            }
         } catch (SQLException e) {
-            return false;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -122,7 +122,8 @@ public class ChangeDAO extends DAO {
     public Conn getConnFromFakeToken(String fakeToken) {
         try {
             ResultSet rs = selectResultSetFromFakeToken(fakeToken);
-            return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
+            if (rs != null)
+                return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
         } catch (SQLException e) {
         }
         return null;
@@ -137,8 +138,8 @@ public class ChangeDAO extends DAO {
     public Conn getConnFromRealToken(String realToken) {
         try {
             ResultSet rs = selectResultSetFromRealToken(realToken);
-            if(rs.next())
-            return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
+            if (rs.next())
+                return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -148,8 +149,8 @@ public class ChangeDAO extends DAO {
     public Conn getConnFromCode(String code) {
         try {
             ResultSet rs = selectResultSetFromCode(code);
-            rs.next();
-            return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
+            if (rs.next())
+                return new Conn(rs.getString("realtoken"), rs.getString("code"), rs.getString("faketoken"), rs.getString("pnum"));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -181,8 +182,10 @@ public class ChangeDAO extends DAO {
         String sql = "select * from conn where faketoken = '" + fakeToken + "'";
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery(sql);
-        rs.next();
-        return rs;
+        if (rs.next())
+            return rs;
+        else
+            return null;
     }
 
     /**
@@ -228,7 +231,12 @@ public class ChangeDAO extends DAO {
     }
 
     private boolean isAnotherFakePhoneRegisterd(String code) {
-        return !getConnFromCode(code).getFakeToken().equals("");
+        if (getConnFromCode(code) != null) {
+            if (getConnFromCode(code).getFakeToken() != null) {
+                return !getConnFromCode(code).getFakeToken().equals("");
+            }
+        }
+        return false;
     }
 
     /**
@@ -256,8 +264,8 @@ public class ChangeDAO extends DAO {
     public String getAuthCode(String realToken) {
         try {
             ResultSet resultSet = selectResultSetFromRealToken(realToken);
-            resultSet.next();
-            return resultSet.getString("code");
+            if (resultSet.next())
+                return resultSet.getString("code");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -267,7 +275,8 @@ public class ChangeDAO extends DAO {
     public String getPhoneNum(String fakeToken) {
         try {
             ResultSet resultSet = selectResultSetFromFakeToken(fakeToken);
-            return resultSet.getString("pnum");
+            if (resultSet != null)
+                return resultSet.getString("pnum");
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -31,5 +31,6 @@ public class RegisterRouter extends AbstractDAHandler<ChangeDAO> {
             response.setStatusCode(400);
         }
         response.close();
+        System.out.println(response.getStatusCode());
     }
 }

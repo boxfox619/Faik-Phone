@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.boxfox.faikphone.view.SettingCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="Real 모드 설명">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Fake모드는 약정이 해지되어 통신이 불가능한 상태의 단말기에 적용하는 모드 입니다.
+             진짜 스마트폰 대신 Fake 모드를 사용하여 통신이 불가능한 상태의 ㅁㅁ를 꾸미고 진짜 스마트폰과 연동하여 전화 또는 문자를 수신할 수 있습니다."/>
+
+    </com.boxfox.faikphone.view.SettingCategory>
+
+    <com.boxfox.faikphone.view.SettingCategory
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="인증 코드">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/tv_real_key_code"
+                android:text="코드"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/btn_connect_real"/>
+
+            <ImageButton
+                android:id="@+id/btn_refresh_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_refresh"
+                android:tint="@color/colorAccent" />
+        </RelativeLayout>
+
+        <com.gc.materialdesign.views.ButtonFlat
+            android:id="@+id/btn_disconnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="연결 끊기"
+            android:gravity="center"/>
+    </com.boxfox.faikphone.view.SettingCategory>
+
+</LinearLayout>

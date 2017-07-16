@@ -33,8 +33,9 @@ public class ResetRouter extends AbstractDAHandler<ChangeDAO> {
                     break;
                 case "code":
                     response.setStatusCode(dao.resetCode(token)?200:400);
-                    if(response.getStatusCode()==200)
+                    if(response.getStatusCode()==200&&dao.getAuthCode(token)!=null){
                         response.end(dao.getAuthCode(token));
+                    }
                     break;
                 case "all":
                     response.setStatusCode(dao.resetAll(token, true)?200:400);
@@ -44,7 +45,7 @@ public class ResetRouter extends AbstractDAHandler<ChangeDAO> {
                     response.end("Invalid Request");
             }
         } else {
-            System.out.println("Invalied Request");
+            System.out.println("Invalied Request"+response.ended());
             response.end("Invalid Request");
         }
         response.close();
