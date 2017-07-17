@@ -3,7 +3,10 @@ package com.boxfox.faikphone.fragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,7 @@ import com.androidquery.callback.AjaxStatus;
 import com.boxfox.faikphone.R;
 import com.boxfox.faikphone.data.PhoneStatus;
 import com.boxfox.faikphone.network.EasyAquery;
+import com.boxfox.faikphone.service.FakeStatusBarService;
 import com.gc.materialdesign.views.ButtonFlat;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.swipeselector.OnSwipeItemSelectedListener;
@@ -29,7 +33,8 @@ import io.realm.Realm;
  * Created by boxfox on 2017-07-16.
  */
 
-public class FakeModeFragment extends Fragment {
+public class FakeModeFragment extends ModeFragment {
+    private static final int REQUEST_MANAGE_OVERLAY_PERMISSION = 11;
     private PhoneStatus phoneStatus;
 
     private EditText realCodeEditText;
@@ -59,6 +64,9 @@ public class FakeModeFragment extends Fragment {
         swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
             @Override
             public void onItemSelected(SwipeItem item) {
+                if (checkDrawOverlayPermission()) {
+                    getActivity().startService(new Intent(getActivity(), FakeStatusBarService.class));
+                }
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 phoneStatus.setStatusBar(((int) item.value) == 0 ? false : true);
@@ -68,6 +76,33 @@ public class FakeModeFragment extends Fragment {
             }
         });
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_MANAGE_OVERLAY_PERMISSION:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (Settings.canDrawOverlays(getActivity())) {
+                        getActivity().startService(new Intent(getActivity(), FakeStatusBarService.class));
+                        getActivity().finish();
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public boolean checkDrawOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(getActivity())) {
+                startActivityForResult(
+                        new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION), REQUEST_MANAGE_OVERLAY_PERMISSION);
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -146,5 +181,15 @@ public class FakeModeFragment extends Fragment {
     private void refreshConnection() {
         String url = (phoneStatus.mode()) ? getString(R.string.fake_mode_server_url) : getString(R.string.real_mode_server_url);
         new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post();
+    }
+
+    @Override
+    public void requestPermissionResult(int requestCode, @NonNull int[] grantResults) {
+
+    }
+
+    @Override
+    public void release() {
+
     }
 }

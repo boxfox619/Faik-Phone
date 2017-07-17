@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.boxfox.faikphone.R;
 import com.boxfox.faikphone.data.PhoneStatus;
 import com.boxfox.faikphone.fragment.FakeModeFragment;
+import com.boxfox.faikphone.fragment.ModeFragment;
 import com.boxfox.faikphone.fragment.RealModeFragment;
 import com.boxfox.faikphone.network.EasyAquery;
 import com.boxfox.faikphone.service.FakeStatusBarService;
@@ -30,7 +31,6 @@ import io.realm.Realm;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQUEST_MANAGE_OVERLAY_PERMISSION = 11;
     private static final int PERMISSIONS_REQUEST_READ_PHONE_STATE = 21;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 22;
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 23;
@@ -63,12 +63,6 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
         modeTitleTextView.setText(phoneStatus.mode() ? "REAL" : "FAKE");
 
-        if (checkDrawOverlayPermission()) {
-            startService(new Intent(this, FakeStatusBarService.class));
-        }
-        checkPermission(Manifest.permission.READ_PHONE_STATE, PERMISSIONS_REQUEST_READ_PHONE_STATE);
-        checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE, PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
     }
 
     private Boolean exit = false;
@@ -100,53 +94,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "설정을 하려면 앱을 다시 실행하시면 됩니다.", Toast.LENGTH_SHORT).show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_MANAGE_OVERLAY_PERMISSION:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (Settings.canDrawOverlays(this)) {
-                        startService(new Intent(this, FakeStatusBarService.class));
-                        finish();
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_READ_PHONE_STATE:
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-
-                } else {
-                    Toast.makeText(this, "Fake Call 기능을 사용하기 위해서는 전화 권한이 필요합니다.\n" +
-                            "설정에서 권한을 허용해주세요.", Toast.LENGTH_LONG).show();
-                }
-                break;
-            case PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-            case PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE:
-            default:
-                break;
+        if (getFragmentManager().findFragmentById(R.id.container) instanceof ModeFragment) {
+            ((ModeFragment) getFragmentManager().findFragmentById(R.id.container)).requestPermissionResult(requestCode, grantResults);
         }
-    }
-
-    public boolean checkDrawOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(this)) {
-                startActivityForResult(
-                        new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION), REQUEST_MANAGE_OVERLAY_PERMISSION);
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public void checkPermission(String permission, int requestCode) {
@@ -172,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
                                 .addParam("token", token)
                                 .addParam("type", phoneStatus.mode() ? "all" : "conn")
                                 .post();
+                        if (getFragmentManager().findFragmentById(R.id.container) instanceof ModeFragment) {
+                            ((ModeFragment) getFragmentManager().findFragmentById(R.id.container)).release();
+                        }
                         getFragmentManager()
                                 .beginTransaction()
                                 .setCustomAnimations(
@@ -179,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                                         R.animator.card_flip_right_out,
                                         R.animator.card_flip_left_in,
                                         R.animator.card_flip_left_out)
-                                .replace(R.id.container, phoneStatus.mode() ? new RealModeFragment() : new FakeModeFragment())
+                                .replace(R.id.container, phoneStatus.mode() ? new RealModeFragment(): new FakeModeFragment())
                                 .addToBackStack(null)
                                 .commit();
                         modeTitleTextView.setText(phoneStatus.mode() ? "REAL" : "FAKE");

@@ -20,6 +20,9 @@ public class PhoneStatus extends RealmObject {
     private boolean mode;
     private boolean statusBar;
 
+    private boolean callRecive;
+    private boolean smsRecive;
+
     public void init(){
         deviceUID = UUID.randomUUID().toString();
         mode = true;
@@ -63,5 +66,21 @@ public class PhoneStatus extends RealmObject {
 
     public void setDeviceUID(String deviceUID) {
         this.deviceUID = deviceUID;
+    }
+
+    public boolean useCallRecive() {
+        return callRecive;
+    }
+
+    public void useCallRecive(boolean callRecive) {
+        this.callRecive = callRecive;
+    }
+
+    public boolean useSmsRecive() {
+        return smsRecive;
+    }
+
+    public void useSmsRecive(boolean smsRecive) {
+        this.smsRecive = smsRecive;
     }
 }
