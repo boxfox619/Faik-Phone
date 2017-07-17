@@ -25,6 +25,7 @@ public class MessageRouter extends AbstractDAHandler<ChangeDAO> {
         HttpServerRequest request  = ctx.request();
         HttpServerResponse response = ctx.response();
         response.setStatusCode(sendMessage(request.getParam("token"), request.getParam("message")));
+        response.end();
         response.close();
     }
 

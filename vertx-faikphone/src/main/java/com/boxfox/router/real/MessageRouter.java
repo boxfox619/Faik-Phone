@@ -30,7 +30,7 @@ public class MessageRouter extends AbstractDAHandler<ChangeDAO> {
         HttpServerResponse response = ctx.response();
 
         JSONObject object = new JSONObject(request.getParam("message"));
-        response.setStatusCode(sendMessage(dao, object, request.getParam("token")));
+        response.setStatusCode(sendMessage(dao, object, request.getParam("token"))).end();
         response.close();
     }
 

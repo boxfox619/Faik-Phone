@@ -30,6 +30,8 @@ public class CheckConnRouter extends AbstractDAHandler<ChangeDAO> {
             response.end(phoneNum);
         }else
             response.setStatusCode(400);
+        if(!response.ended())
+            response.end();
         response.close();
     }
 }

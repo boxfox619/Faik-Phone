@@ -48,6 +48,8 @@ public class ResetRouter extends AbstractDAHandler<ChangeDAO> {
             System.out.println("Invalied Request"+response.ended());
             response.end("Invalid Request");
         }
+        if(!response.ended())
+            response.end();
         response.close();
     }
 }
