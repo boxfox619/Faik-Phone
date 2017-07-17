@@ -84,6 +84,10 @@ public class RealModeFragment extends ModeFragment {
         phoneStatus.setKeyCode(null);
         realm.commitTransaction();
         restartService();
+        EasyAquery aq = new EasyAquery(getActivity());
+        aq.setUrl(getString(R.string.real_mode_server_url) + "reset")
+                .addParam("type", "all")
+                .post();
     }
 
     private void smsRecive(boolean check) {

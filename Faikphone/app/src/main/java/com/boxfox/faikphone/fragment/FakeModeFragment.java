@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 import com.boxfox.faikphone.R;
+import com.boxfox.faikphone.activity.MainActivity;
 import com.boxfox.faikphone.data.PhoneStatus;
 import com.boxfox.faikphone.network.EasyAquery;
 import com.boxfox.faikphone.service.FakeStatusBarService;
@@ -190,6 +191,9 @@ public class FakeModeFragment extends ModeFragment {
 
     @Override
     public void release() {
-
+        EasyAquery aq = new EasyAquery(getActivity());
+        aq.setUrl(getString(R.string.fake_mode_server_url) + "reset")
+                .addParam("type", "all")
+                .post();
     }
 }

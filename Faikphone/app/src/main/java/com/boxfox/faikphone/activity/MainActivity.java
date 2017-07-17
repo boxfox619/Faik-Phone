@@ -119,12 +119,6 @@ public class MainActivity extends AppCompatActivity {
                         realm.beginTransaction();
                         phoneStatus.setMode(!phoneStatus.mode());
                         realm.commitTransaction();
-                        String token = FirebaseInstanceId.getInstance().getToken();
-                        EasyAquery aq = new EasyAquery(MainActivity.this);
-                        aq.setUrl(getString(R.string.real_mode_server_url) + "reset")
-                                .addParam("token", token)
-                                .addParam("type", phoneStatus.mode() ? "all" : "conn")
-                                .post();
                         if (getFragmentManager().findFragmentById(R.id.container) instanceof ModeFragment) {
                             ((ModeFragment) getFragmentManager().findFragmentById(R.id.container)).release();
                         }
