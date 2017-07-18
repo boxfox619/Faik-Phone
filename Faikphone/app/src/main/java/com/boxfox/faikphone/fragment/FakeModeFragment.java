@@ -3,6 +3,7 @@ package com.boxfox.faikphone.fragment;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,6 +23,7 @@ import com.boxfox.faikphone.activity.MainActivity;
 import com.boxfox.faikphone.data.PhoneStatus;
 import com.boxfox.faikphone.network.EasyAquery;
 import com.boxfox.faikphone.service.FakeStatusBarService;
+import com.boxfox.faikphone.service.PhoneStatusMonitoringService;
 import com.gc.materialdesign.views.ButtonFlat;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.roughike.swipeselector.OnSwipeItemSelectedListener;
@@ -65,18 +67,23 @@ public class FakeModeFragment extends ModeFragment {
         swipeSelector.setOnItemSelectedListener(new OnSwipeItemSelectedListener() {
             @Override
             public void onItemSelected(SwipeItem item) {
-                if (checkDrawOverlayPermission()) {
-                    getActivity().startService(new Intent(getActivity(), FakeStatusBarService.class));
-                }
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 phoneStatus.setStatusBar(((int) item.value) == 0 ? false : true);
                 phoneStatus.setMobileCarrier(item.title);
                 realm.commitTransaction();
-                getActivity().sendBroadcast(new Intent(getString(R.string.preferences_changed_broadcast)));
+                restartService();
             }
         });
+        checkConnection();
         return root;
+    }
+
+    private void restartService() {
+        getActivity().stopService(new Intent(getActivity(), FakeStatusBarService.class));
+        if (phoneStatus.useStatusBar() && checkDrawOverlayPermission()) {
+            getActivity().startService(new Intent(getActivity(), FakeStatusBarService.class));
+        }
     }
 
     @Override
@@ -85,8 +92,7 @@ public class FakeModeFragment extends ModeFragment {
             case REQUEST_MANAGE_OVERLAY_PERMISSION:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (Settings.canDrawOverlays(getActivity())) {
-                        getActivity().startService(new Intent(getActivity(), FakeStatusBarService.class));
-                        getActivity().finish();
+                        restartService();
                     }
                 }
                 break;
@@ -98,8 +104,8 @@ public class FakeModeFragment extends ModeFragment {
     public boolean checkDrawOverlayPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(getActivity())) {
-                startActivityForResult(
-                        new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION), REQUEST_MANAGE_OVERLAY_PERMISSION);
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getActivity().getPackageName()));
+                startActivityForResult(intent, REQUEST_MANAGE_OVERLAY_PERMISSION);
                 return false;
             }
         }
@@ -119,7 +125,7 @@ public class FakeModeFragment extends ModeFragment {
                     Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
                     phoneStatus.setKeyCode(realCodeEditText.getText().toString());
-                    realm.beginTransaction();
+                    realm.commitTransaction();
                     Toast.makeText(getActivity(), "연결에 성공했습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "연결에 실패했습니다.", Toast.LENGTH_SHORT).show();
@@ -159,29 +165,41 @@ public class FakeModeFragment extends ModeFragment {
     }
 
     private void checkConnection() {
-        EasyAquery aq = new EasyAquery(getActivity());
-        aq.setUrl(getString(R.string.fake_mode_server_url) + "checkconn");
-        aq.post(String.class, new AjaxCallback<String>() {
-            @Override
-            public void callback(String url, String object, AjaxStatus status) {
-                if (phoneStatus.getKeyCode() == null) {
-                    Toast.makeText(getActivity(), "연결되어 있지 않습니다.", Toast.LENGTH_SHORT).show();
-                } else
-                    new AlertDialog.Builder(getActivity()).setMessage("연결된 기기 : " + phoneStatus.getKeyCode())
-                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .show();
-            }
-        });
+        realCodeEditText.setText(phoneStatus.getKeyCode() == null ? "" : phoneStatus.getKeyCode());
+        if (phoneStatus.getKeyCode() == null) {
+            disconnectBtn.setEnabled(false);
+        } else {
+            EasyAquery aq = new EasyAquery(getActivity());
+            aq.setUrl(getString(R.string.fake_mode_server_url) + "checkconn");
+            aq.post(String.class, new AjaxCallback<String>() {
+                @Override
+                public void callback(String url, String object, AjaxStatus status) {
+                    if (status.getCode() == 200) {
+                        disconnectBtn.setEnabled(true);
+                    } else
+                        disconnectBtn.setEnabled(false);
+                }
+            });
+        }
     }
 
 
     private void refreshConnection() {
         String url = (phoneStatus.mode()) ? getString(R.string.fake_mode_server_url) : getString(R.string.real_mode_server_url);
-        new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post();
+        new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post(String.class, new AjaxCallback<String>() {
+            @Override
+            public void callback(String url, String object, AjaxStatus status) {
+                if (status.getCode() == 200) {
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    phoneStatus.setKeyCode(null);
+                    realm.commitTransaction();
+                    checkConnection();
+                } else {
+
+                }
+            }
+        });
     }
 
     @Override

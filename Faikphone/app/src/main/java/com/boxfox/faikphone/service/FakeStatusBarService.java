@@ -42,6 +42,7 @@ public class FakeStatusBarService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Realm.init(this);
         phoneStatus = Realm.getDefaultInstance().where(PhoneStatus.class).findFirst();
         if (phoneStatus.useStatusBar()) {
             showFakeStatusBar();

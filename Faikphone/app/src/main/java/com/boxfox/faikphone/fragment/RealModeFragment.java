@@ -72,6 +72,8 @@ public class RealModeFragment extends ModeFragment {
         disconnectBtn.setOnClickListener(view -> disconnect());
         disconnectBtn.setEnabled(false);
         updateCode();
+        restartService();
+        checkConnection();
         return root;
     }
 
@@ -161,6 +163,17 @@ public class RealModeFragment extends ModeFragment {
     }
 
     private void checkConnection() {
+        EasyAquery aq = new EasyAquery(getActivity());
+        aq.setUrl(getString(R.string.real_mode_server_url) + "checkconn");
+        aq.post(String.class, new AjaxCallback<String>() {
+            @Override
+            public void callback(String url, String object, AjaxStatus status) {
+                if (status.getCode() == 200) {
+                    disconnectBtn.setEnabled(true);
+                } else
+                    disconnectBtn.setEnabled(false);
+            }
+        });
         disconnectBtn.setEnabled(true);
     }
 
@@ -173,12 +186,18 @@ public class RealModeFragment extends ModeFragment {
 
             @Override
             public void callback(String url, String object, AjaxStatus status) {
-                if (object != null) {
-                    Realm realm = Realm.getDefaultInstance();
+
+                Realm realm = Realm.getDefaultInstance();
+                if (status.getCode() == 200 && object != null) {
                     realm.beginTransaction();
                     phoneStatus.setKeyCode(object);
                     realm.commitTransaction();
                     codeTv.setText(object);
+                } else {
+                    realm.beginTransaction();
+                    phoneStatus.setKeyCode(null);
+                    realm.commitTransaction();
+                    updateCode();
                 }
 
             }
@@ -226,6 +245,18 @@ public class RealModeFragment extends ModeFragment {
 
     private void refreshConnection() {
         String url = getString(R.string.real_mode_server_url);
-        new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post();
+        new EasyAquery(getActivity()).setUrl(url + "reset").addParam("type", "conn").post(String.class, new AjaxCallback<String>() {
+            @Override
+            public void callback(String url, String object, AjaxStatus status) {
+                if (status.getCode() == 200) {
+                    checkConnection();
+                } else {
+                    SnackBar snackbar = new SnackBar(getActivity(), "알 수 없는 이유로 연결 해제가 실패했습니다.", "다시시도", view -> {
+                        refreshConnection();
+                    });
+                    snackbar.show();
+                }
+            }
+        });
     }
 }
