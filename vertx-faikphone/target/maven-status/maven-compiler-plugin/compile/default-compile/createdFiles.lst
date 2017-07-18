@@ -3,11 +3,11 @@ com\boxfox\support\crypto\SHA256.class
 com\boxfox\support\handler\LogHandlerImpl.class
 com\boxfox\router\real\RegisterRouter.class
 com\boxfox\dao\ChangeDAO$Conn.class
+com\boxfox\router\real\CheckConnRouter.class
 com\boxfox\support\routing\RESTResource.class
 com\boxfox\router\fake\CheckConnRouter.class
 com\boxfox\router\fake\MessageRouter.class
 com\boxfox\router\fake\RegisterRouter.class
-com\boxfox\support\handler\CORSHandler.class
 com\boxfox\dao\ChangeDAO.class
 com\boxfox\main\MainVerticle.class
 com\boxfox\main\Main.class
@@ -20,7 +20,6 @@ com\boxfox\support\utilities\Log.class
 com\boxfox\support\utilities\response\ResponseJsonUtil.class
 com\boxfox\support\routing\Routing.class
 com\boxfox\router\fake\ResetRouter.class
-com\boxfox\support\handler\CORSHandlerImpl.class
 com\boxfox\support\utilities\Config.class
 com\boxfox\dao\DAO.class
 com\boxfox\router\real\MessageRouter.class

@@ -1,6 +1,5 @@
 package com.boxfox.main;
 
-import com.boxfox.support.handler.CORSHandler;
 import com.boxfox.support.handler.LogHandler;
 import com.boxfox.support.routing.Routing;
 import com.boxfox.support.utilities.Config;
@@ -23,7 +22,6 @@ public class MainVerticle extends AbstractVerticle {
 		
 		router.route().handler(CookieHandler.create());
 		router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
-		router.route().handler(CORSHandler.create());
 		router.route().handler(LogHandler.create());
 		Routing.route(router, "com.boxfox.router");
 		

@@ -42,6 +42,8 @@ public class ChangeDAO extends DAO {
     public boolean insertFaikPhoneToken(String token, String code) {
         if (!isAnotherFakePhoneRegisterd(code))
             try {
+                String deleteSql = "delete from conn where faketoken='" + token + "'";
+                connection.prepareStatement(deleteSql).execute();
                 String sql = "update conn set faketoken = '" + token + "' where code = '" + code + "'";
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 if (preparedStatement.executeUpdate() > 0) {
@@ -61,11 +63,13 @@ public class ChangeDAO extends DAO {
      */
 
     public boolean resetConnection(String token, boolean state) {
-        String sql = "update conn set faketoken = '' where";
-        sql += state ? " realtoken = '" + token + "'" : "faketoken = '" + token + "'";
+        String sql = "update conn set faketoken = null where";
+        sql += state ? " realtoken" : "faketoken";
+        sql += " = '" + token + "'";
+        System.out.println(sql);
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            if(preparedStatement.executeUpdate()>0)
+            if (preparedStatement.executeUpdate() > 0)
                 return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,7 +109,7 @@ public class ChangeDAO extends DAO {
         String sql = "update conn set code = '" + code + "' where realtoken = '" + token + "'";
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-            if(preparedStatement.executeUpdate()>0){
+            if (preparedStatement.executeUpdate() > 0) {
                 return true;
             }
         } catch (SQLException e) {
@@ -277,6 +281,17 @@ public class ChangeDAO extends DAO {
             ResultSet resultSet = selectResultSetFromFakeToken(fakeToken);
             if (resultSet != null)
                 return resultSet.getString("pnum");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String getFakeToken(String realToken){
+        try {
+            ResultSet resultSet = selectResultSetFromRealToken(realToken);
+            if (resultSet != null)
+                return resultSet.getString("faketoken");
         } catch (SQLException e) {
             e.printStackTrace();
         }
